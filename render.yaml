@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: taiwan-food-discovery
+    runtime: static
+    buildCommand: npm run build
+    publishPath: dist
+    routes:
+      # 當未來有使用 React Router 時，此規則可將所有靜態路由重新導向 index.html
+      - type: rewrite
+        from: /*
+        to: /index.html
