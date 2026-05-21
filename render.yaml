@@ -1,7 +1,6 @@
 services:
-  - type: web
+  - type: static
     name: taiwan-food-discovery
-    runtime: static
     buildCommand: npm run build
     publishPath: dist
     envVars:
