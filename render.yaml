@@ -5,7 +5,7 @@ services:
     publishPath: dist
     envVars:
       - key: NODE_VERSION
-        value: 20
+        value: "20"
     routes:
       # 當未來有使用 React Router 時，此規則可將所有靜態路由重新導向 index.html
       - type: rewrite
