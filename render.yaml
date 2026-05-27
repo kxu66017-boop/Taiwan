@@ -1,13 +1,9 @@
 services:
-  - type: static
+  - type: web
     name: taiwan-food-discovery
-    buildCommand: npm install && npm run build
-    publishPath: dist
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: "20"
-    routes:
-      # 當未來有使用 React Router 時，此規則可將所有靜態路由重新導向 index.html
-      - type: rewrite
-        from: /*
-        to: /index.html
