@@ -1,8 +1,9 @@
 services:
-  - type: static
+  - type: web
     name: taiwan-food-discovery
+    env: static
     buildCommand: npm run build
-    publishPath: dist
+    staticPublishPath: dist
     envVars:
       - key: NODE_VERSION
         value: 20
