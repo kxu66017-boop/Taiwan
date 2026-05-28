@@ -10,6 +10,18 @@ import {
   ArrowLeft, Trash2, Settings, MessageSquare, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import bubbleMilkTeaImg from './assets/images/bubble_milk_tea_watercolor_1779950448147.png';
+import luRouFanImg from './assets/images/lu_rou_fan_1779950710199.png';
+import beefNoodlesImg from './assets/images/beef_noodles_1779950729471.png';
+import xiaoLongBaoImg from './assets/images/xiao_long_bao_1779950746520.png';
+import sunCakeImg from './assets/images/sun_cake_1779950770070.png';
+import danzaiNoodlesImg from './assets/images/danzai_noodles_1779950788611.png';
+import coffinBreadImg from './assets/images/coffin_bread_1779950804830.png';
+import oysterOmeletImg from './assets/images/oyster_omelet_1779950823265.png';
+import mochiImg from './assets/images/mochi_1779950840182.png';
+import popcornChickenImg from './assets/images/popcorn_chicken_1779950858025.png';
+import baWanImg from './assets/images/ba_wan_1779950878558.png';
+import flyingFishImg from './assets/images/flying_fish_1779950896160.png';
 
 // ============ TYPES ============
 interface Food {
@@ -26,6 +38,7 @@ interface Food {
   type: string;
   featured: boolean;
   latest: boolean;
+  imageUrl?: string;
 }
 
 interface Review {
@@ -49,10 +62,10 @@ interface Recommendation {
 
 // ============ DATA ============
 const FOOD_DATA: Food[] = [
-  { id: 1, name: "滷肉飯", region: "北部", city: "台北", emoji: "🍚", rating: 4.8, price: "$40-65", reviews: 24, desc: "細碎豬肉以醬油、五香慢滷，淋上Q彈白飯，是台灣最具代表性的庶民美食。", tags: ["飯類", "經典"], type: "飯類", featured: true, latest: false },
-  { id: 2, name: "牛肉麵", region: "北部", city: "台北", emoji: "🍜", rating: 4.9, price: "$150-220", reviews: 31, desc: "紅燒或清燉湯頭，搭配軟嫩牛腱與手工麵條，是台北最具國際知名度的料理。", tags: ["麵類", "湯品"], type: "麵類", featured: true, latest: false },
-  { id: 3, name: "小籠包", region: "北部", city: "台北", emoji: "🥟", rating: 4.7, price: "$100-250", reviews: 19, desc: "薄皮內包裹鮮美湯汁與豬肉餡，輕咬一口，湯汁四溢，功夫盡在摺痕之中。", tags: ["點心", "經典"], type: "點心", featured: true, latest: false },
-  { id: 4, name: "珍珠奶茶", region: "中部", city: "台中", emoji: "🧋", rating: 4.6, price: "$45-75", reviews: 42, desc: "Q彈粉圓沉浮於香濃奶茶之中，源自台中的世界級飲品，甜度冰塊客製化。", tags: ["飲品", "經典"], type: "飲品", featured: false, latest: true },
+  { id: 1, name: "滷肉飯", region: "北部", city: "台北", emoji: "🍚", rating: 4.8, price: "$40-65", reviews: 24, desc: "細碎豬肉以醬油、五香慢滷，淋上Q彈白飯，是台灣最具代表性的庶民美食。", tags: ["飯類", "經典"], type: "飯類", featured: true, latest: false, imageUrl: luRouFanImg },
+  { id: 2, name: "牛肉麵", region: "北部", city: "台北", emoji: "🍜", rating: 4.9, price: "$150-220", reviews: 31, desc: "紅燒或清燉湯頭，搭配軟嫩牛腱與手工麵條，是台北最具國際知名度的料理。", tags: ["麵類", "湯品"], type: "麵類", featured: true, latest: false, imageUrl: beefNoodlesImg },
+  { id: 3, name: "小籠包", region: "北部", city: "台北", emoji: "🥟", rating: 4.7, price: "$100-250", reviews: 19, desc: "薄皮內包裹鮮美湯汁與豬肉餡，輕咬一口，湯汁四溢，功夫盡在摺痕之中。", tags: ["點心", "經典"], type: "點心", featured: true, latest: false, imageUrl: xiaoLongBaoImg },
+  { id: 4, name: "珍珠奶茶", region: "中部", city: "台中", emoji: "🧋", rating: 4.6, price: "$45-75", reviews: 42, desc: "Q彈粉圓沉浮於香濃奶茶之中，源自台中的世界級飲品，甜度冰塊客製化。", tags: ["飲品", "經典"], type: "飲品", featured: false, latest: true, imageUrl: bubbleMilkTeaImg },
   { id: 5, name: "太陽餅", region: "中部", city: "台中", emoji: "🥮", rating: 4.3, price: "$25-50", reviews: 15, desc: "層層酥皮包裹麥芽糖內餡，酥鬆香甜，是台中最具代表性的伴手禮。", tags: ["點心", "伴手禮"], type: "點心", featured: false, latest: false },
   { id: 6, name: "擔仔麵", region: "南部", city: "台南", emoji: "🍜", rating: 4.5, price: "$50-80", reviews: 28, desc: "小碗裝盛，以蝦頭熬製高湯為底，佐以肉燥與鮮蝦，台南小吃的精髓所在。", tags: ["麵類", "經典"], type: "麵類", featured: true, latest: false },
   { id: 7, name: "棺材板", region: "南部", city: "台南", emoji: "🍞", rating: 4.2, price: "$60-90", reviews: 12, desc: "炸至金黃的厚片吐司挖空填入奶油海鮮濃湯，外酥內滑，台南獨有創意小吃。", tags: ["點心", "創意"], type: "點心", featured: false, latest: true },
@@ -256,10 +269,19 @@ function FoodCard({ food, onShowDetail, isFavorite, onToggleFavorite }: any) {
       className="group bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
     >
       <div 
-        className="h-48 bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center relative cursor-pointer"
+        className="h-48 bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center relative cursor-pointer overflow-hidden"
         onClick={() => onShowDetail(food.id)}
       >
-        <span className="text-7xl group-hover:scale-110 transition-transform duration-500">{food.emoji}</span>
+        {food.imageUrl ? (
+          <img 
+            src={food.imageUrl} 
+            alt={food.name} 
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <span className="text-7xl group-hover:scale-110 transition-transform duration-500">{food.emoji}</span>
+        )}
         <span className="absolute top-3 right-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm">{food.region}</span>
         <button 
           onClick={(e) => { e.stopPropagation(); onToggleFavorite(food.id); }}
@@ -949,14 +971,25 @@ function DetailView({ food, onBack, isFavorite, onToggleFavorite, reviews }: any
       </button>
 
       <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-stone-100">
-        <div className="h-80 sm:h-96 bg-gradient-to-br from-stone-50 to-stone-200 flex items-center justify-center relative p-12">
-          <motion.span 
-            initial={{ scale: 0.5, rotate: -20 }}
-            animate={{ scale: 1, rotate: 0 }}
-            className="text-[12rem] sm:text-[16rem] drop-shadow-2xl"
-          >
-            {food.emoji}
-          </motion.span>
+        <div className="h-80 sm:h-96 bg-gradient-to-br from-stone-50 to-stone-200 flex items-center justify-center relative overflow-hidden">
+          {food.imageUrl ? (
+            <motion.img 
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              src={food.imageUrl}
+              alt={food.name}
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <motion.span 
+              initial={{ scale: 0.5, rotate: -20 }}
+              animate={{ scale: 1, rotate: 0 }}
+              className="text-[12rem] sm:text-[16rem] drop-shadow-2xl"
+            >
+              {food.emoji}
+            </motion.span>
+          )}
           <button 
             onClick={onToggleFavorite}
             className={`absolute top-8 right-8 p-4 rounded-full shadow-2xl transition-all active:scale-90 ${
