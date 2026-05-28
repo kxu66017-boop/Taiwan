@@ -10,7 +10,7 @@ import {
   ArrowLeft, Trash2, Settings, MessageSquare, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import bubbleMilkTeaImg from './assets/images/bubble_milk_tea_watercolor_1779950448147.png';
+import bubbleMilkTeaImg from './assets/images/bubble_milk_tea_watercolor_1779951019361.png';
 import luRouFanImg from './assets/images/lu_rou_fan_1779950710199.png';
 import beefNoodlesImg from './assets/images/beef_noodles_1779950729471.png';
 import xiaoLongBaoImg from './assets/images/xiao_long_bao_1779950746520.png';
@@ -66,14 +66,14 @@ const FOOD_DATA: Food[] = [
   { id: 2, name: "牛肉麵", region: "北部", city: "台北", emoji: "🍜", rating: 4.9, price: "$150-220", reviews: 31, desc: "紅燒或清燉湯頭，搭配軟嫩牛腱與手工麵條，是台北最具國際知名度的料理。", tags: ["麵類", "湯品"], type: "麵類", featured: true, latest: false, imageUrl: beefNoodlesImg },
   { id: 3, name: "小籠包", region: "北部", city: "台北", emoji: "🥟", rating: 4.7, price: "$100-250", reviews: 19, desc: "薄皮內包裹鮮美湯汁與豬肉餡，輕咬一口，湯汁四溢，功夫盡在摺痕之中。", tags: ["點心", "經典"], type: "點心", featured: true, latest: false, imageUrl: xiaoLongBaoImg },
   { id: 4, name: "珍珠奶茶", region: "中部", city: "台中", emoji: "🧋", rating: 4.6, price: "$45-75", reviews: 42, desc: "Q彈粉圓沉浮於香濃奶茶之中，源自台中的世界級飲品，甜度冰塊客製化。", tags: ["飲品", "經典"], type: "飲品", featured: false, latest: true, imageUrl: bubbleMilkTeaImg },
-  { id: 5, name: "太陽餅", region: "中部", city: "台中", emoji: "🥮", rating: 4.3, price: "$25-50", reviews: 15, desc: "層層酥皮包裹麥芽糖內餡，酥鬆香甜，是台中最具代表性的伴手禮。", tags: ["點心", "伴手禮"], type: "點心", featured: false, latest: false },
-  { id: 6, name: "擔仔麵", region: "南部", city: "台南", emoji: "🍜", rating: 4.5, price: "$50-80", reviews: 28, desc: "小碗裝盛，以蝦頭熬製高湯為底，佐以肉燥與鮮蝦，台南小吃的精髓所在。", tags: ["麵類", "經典"], type: "麵類", featured: true, latest: false },
-  { id: 7, name: "棺材板", region: "南部", city: "台南", emoji: "🍞", rating: 4.2, price: "$60-90", reviews: 12, desc: "炸至金黃的厚片吐司挖空填入奶油海鮮濃湯，外酥內滑，台南獨有創意小吃。", tags: ["點心", "創意"], type: "點心", featured: false, latest: true },
-  { id: 8, name: "蚵仔煎", region: "南部", city: "台南", emoji: "🥚", rating: 4.6, price: "$50-70", reviews: 35, desc: "鮮蚵與雞蛋、地瓜粉漿在鐵板上煎成，淋上甜辣醬，夜市人氣王。", tags: ["小吃", "經典"], type: "小吃", featured: true, latest: false },
-  { id: 9, name: "麻糬", region: "東部", city: "花蓮", emoji: "🍡", rating: 4.4, price: "$30-60", reviews: 18, desc: "花蓮名產，以糯米搗成彈牙外皮，內包花生或紅豆餡，口感軟糯香甜。", tags: ["點心", "伴手禮"], type: "點心", featured: false, latest: false },
-  { id: 10, name: "鹽酥雞", region: "北部", city: "台北", emoji: "🍗", rating: 4.7, price: "$70-120", reviews: 38, desc: "炸得金黃酥脆的雞塊，撒上九層塔與椒鹽，台灣夜市最療癒的宵夜選擇。", tags: ["小吃", "夜市"], type: "小吃", featured: true, latest: false },
-  { id: 11, name: "肉圓", region: "中部", city: "彰化", emoji: "🟤", rating: 4.5, price: "$40-60", reviews: 22, desc: "外皮以地瓜粉蒸或炸製成半透明狀，內裹豬肉與筍丁，佐以甜醬，彰化代表。", tags: ["小吃", "經典"], type: "小吃", featured: false, latest: true },
-  { id: 12, name: "烤飛魚", region: "東部", city: "蘭嶼", emoji: "🐟", rating: 4.3, price: "$100-180", reviews: 11, desc: "達悟族傳統料理，新鮮飛魚以鹽醃後炭烤，海洋的原始鮮味，蘭嶼限定。", tags: ["海鮮", "原住民"], type: "海鮮", featured: false, latest: false },
+  { id: 5, name: "太陽餅", region: "中部", city: "台中", emoji: "🥮", rating: 4.3, price: "$25-50", reviews: 15, desc: "層層酥皮包裹麥芽糖內餡，酥鬆香甜，是台中最具代表性的伴手禮。", tags: ["點心", "伴手禮"], type: "點心", featured: false, latest: false, imageUrl: sunCakeImg },
+  { id: 6, name: "擔仔麵", region: "南部", city: "台南", emoji: "🍜", rating: 4.5, price: "$50-80", reviews: 28, desc: "小碗裝盛，以蝦頭熬製高湯為底，佐以肉燥與鮮蝦，台南小吃的精髓所在。", tags: ["麵類", "經典"], type: "麵類", featured: true, latest: false, imageUrl: danzaiNoodlesImg },
+  { id: 7, name: "棺材板", region: "南部", city: "台南", emoji: "🍞", rating: 4.2, price: "$60-90", reviews: 12, desc: "炸至金黃的厚片吐司挖空填入奶油海鮮濃湯，外酥內滑，台南獨有創意小吃。", tags: ["點心", "創意"], type: "點心", featured: false, latest: true, imageUrl: coffinBreadImg },
+  { id: 8, name: "蚵仔煎", region: "南部", city: "台南", emoji: "🥚", rating: 4.6, price: "$50-70", reviews: 35, desc: "鮮蚵與雞蛋、地瓜粉漿在鐵板上煎成，淋上甜辣醬，夜市人氣王。", tags: ["小吃", "經典"], type: "小吃", featured: true, latest: false, imageUrl: oysterOmeletImg },
+  { id: 9, name: "麻糬", region: "東部", city: "花蓮", emoji: "🍡", rating: 4.4, price: "$30-60", reviews: 18, desc: "花蓮名產，以糯米搗成彈牙外皮，內包花生或紅豆餡，口感軟糯香甜。", tags: ["點心", "伴手禮"], type: "點心", featured: false, latest: false, imageUrl: mochiImg },
+  { id: 10, name: "鹽酥雞", region: "北部", city: "台北", emoji: "🍗", rating: 4.7, price: "$70-120", reviews: 38, desc: "炸得金黃酥脆的雞塊，撒上九層塔與椒鹽，台灣夜市最療癒的宵夜選擇。", tags: ["小吃", "夜市"], type: "小吃", featured: true, latest: false, imageUrl: popcornChickenImg },
+  { id: 11, name: "肉圓", region: "中部", city: "彰化", emoji: "🟤", rating: 4.5, price: "$40-60", reviews: 22, desc: "外皮以地瓜粉蒸或炸製成半透明狀，內裹豬肉與筍丁，佐以甜醬，彰化代表。", tags: ["小吃", "經典"], type: "小吃", featured: false, latest: true, imageUrl: baWanImg },
+  { id: 12, name: "烤飛魚", region: "東部", city: "蘭嶼", emoji: "🐟", rating: 4.3, price: "$100-180", reviews: 11, desc: "達悟族傳統料理，新鮮飛魚以鹽醃後炭烤，海洋的原始鮮味，蘭嶼限定。", tags: ["海鮮", "原住民"], type: "海鮮", featured: false, latest: false, imageUrl: flyingFishImg },
 ];
 
 const REGIONS = ["全部", "北部", "中部", "南部", "東部"];
