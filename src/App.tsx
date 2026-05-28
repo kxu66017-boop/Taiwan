@@ -24,6 +24,14 @@ import baWanImg from './assets/images/ba_wan_1779950878558.png';
 import flyingFishImg from './assets/images/flying_fish_1779950896160.png';
 
 // ============ TYPES ============
+interface User {
+  username: string;
+  email: string;
+  avatarUrl: string;
+  level: string;
+  joinDate: string;
+}
+
 interface Food {
   id: number;
   name: string;
@@ -48,6 +56,8 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
+  userName?: string;
+  userAvatar?: string;
 }
 
 interface Recommendation {
@@ -82,16 +92,82 @@ const TYPES = ["全部", "飯類", "麵類", "小吃", "點心", "飲品", "海�
 type Page = 'home' | 'search' | 'map' | 'recommend' | 'account' | 'detail';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('explore_taiwan_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedFoodId, setSelectedFoodId] = useState<number | null>(null);
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [userReviews, setUserReviews] = useState<Review[]>([]);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  
+  const [favorites, setFavorites] = useState<number[]>(() => {
+    const saved = localStorage.getItem('explore_taiwan_fav');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [userReviews, setUserReviews] = useState<Review[]>(() => {
+    const saved = localStorage.getItem('explore_taiwan_reviews');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [recommendations, setRecommendations] = useState<Recommendation[]>(() => {
+    const saved = localStorage.getItem('explore_taiwan_recs');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const handleLogin = (user: User) => {
+    setCurrentUser(user);
+    localStorage.setItem('explore_taiwan_user', JSON.stringify(user));
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('explore_taiwan_user');
+    setCurrentPage('home');
+  };
+
   const toggleFavorite = (id: number) => {
-    setFavorites(prev => prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]);
+    setFavorites(prev => {
+      const updated = prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id];
+      localStorage.setItem('explore_taiwan_fav', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleAddReview = (review: Review) => {
+    setUserReviews(prev => {
+      const updated = [review, ...prev];
+      localStorage.setItem('explore_taiwan_reviews', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleDeleteReview = (id: string) => {
+    setUserReviews(prev => {
+      const updated = prev.filter(r => r.id !== id);
+      localStorage.setItem('explore_taiwan_reviews', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleAddRecommendation = (rec: Recommendation) => {
+    setRecommendations(prev => {
+      const updated = [rec, ...prev];
+      localStorage.setItem('explore_taiwan_recs', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleDeleteRecommendation = (id: string) => {
+    setRecommendations(prev => {
+      const updated = prev.filter(r => r.id !== id);
+      localStorage.setItem('explore_taiwan_recs', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const showDetail = (id: number) => {
@@ -104,7 +180,7 @@ export default function App() {
     { id: 'search', label: '搜尋', icon: <Search className="w-4 h-4" /> },
     { id: 'map', label: '地圖', icon: <MapIcon className="w-4 h-4" /> },
     { id: 'recommend', label: '推薦', icon: <ThumbsUp className="w-4 h-4" /> },
-    { id: 'account', label: '帳戶', icon: <Settings className="w-4 h-4" /> },
+    { id: 'account', label: '帳戶', icon: <Settings className="w-4 h-4 text-xs" /> },
   ];
 
   return (
@@ -113,7 +189,7 @@ export default function App() {
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-stone-200/60 transition-all duration-300">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCurrentPage('home')}>
-            <span className="text-2xl drop-shadow-sm">🍜</span>
+            <span className="text-2xl drop-shadow-sm font-sans">🍜</span>
             <span className="font-display font-bold text-xl text-stone-800 tracking-tight">台灣美食探索</span>
           </div>
 
@@ -134,9 +210,34 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium bg-[#7ea8c4] text-white hover:bg-[#6a94b0] shadow-sm transition-all hover:shadow-md active:scale-95">
-              <LogIn className="w-4 h-4" /> 登入
-            </button>
+            {currentUser ? (
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setCurrentPage('account')}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-200/65 bg-stone-50/50 hover:bg-stone-50 transition-colors cursor-pointer group"
+                >
+                  <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-sm shadow-inner shrink-0 leading-none">
+                    {currentUser.avatarUrl || '🍜'}
+                  </span>
+                  <span className="max-w-[80px] truncate text-xs font-bold text-stone-700 group-hover:text-red-600 transition-colors">
+                    {currentUser.username}
+                  </span>
+                </button>
+                <button 
+                  onClick={handleLogout}
+                  className="hidden sm:block text-xs font-bold text-stone-400 hover:text-red-500 transition-colors px-3 py-1.5 rounded-full border border-transparent hover:border-stone-200/60"
+                >
+                  登出
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setLoginModalOpen(true)}
+                className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium bg-[#7ea8c4] text-white hover:bg-[#6a94b0] shadow-sm transition-all hover:shadow-md active:scale-95 cursor-pointer"
+              >
+                <LogIn className="w-4 h-4" /> 登入 / 註冊
+              </button>
+            )}
             <button 
               className="md:hidden p-2 rounded-lg hover:bg-stone-100 active:bg-stone-200 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -167,6 +268,36 @@ export default function App() {
                     {item.icon} {item.label}
                   </button>
                 ))}
+                
+                {/* Mobile User Section */}
+                <div className="border-t border-stone-100 pt-4 mt-2">
+                  {currentUser ? (
+                    <div className="flex items-center justify-between px-4 py-3 bg-stone-50 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-xl shadow-inner shrink-0">
+                          {currentUser.avatarUrl || '🍜'}
+                        </div>
+                        <div>
+                          <div className="font-bold text-stone-800 text-sm">{currentUser.username}</div>
+                          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">{currentUser.level}</div>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                        className="text-xs font-black text-red-500 bg-red-50 hover:bg-red-100 px-3.5 py-2 rounded-full transition-colors cursor-pointer"
+                      >
+                        登出
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => { setLoginModalOpen(true); setMobileMenuOpen(false); }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-center font-bold text-white bg-[#7ea8c4] hover:bg-[#6a94b0] transition-colors cursor-pointer shadow-sm"
+                    >
+                      <LogIn className="w-4 h-4" /> 登入 / 註冊
+                    </button>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -204,9 +335,11 @@ export default function App() {
           {currentPage === 'recommend' && (
             <RecommendView 
               key="recommend" 
-              onAddRecommendation={(rec) => setRecommendations(prev => [rec, ...prev])} 
+              onAddRecommendation={handleAddRecommendation} 
               recommendations={recommendations}
-              onDelete={id => setRecommendations(prev => prev.filter(r => r.id !== id))}
+              onDelete={handleDeleteRecommendation}
+              currentUser={currentUser}
+              onTriggerLogin={() => setLoginModalOpen(true)}
             />
           )}
           {currentPage === 'account' && (
@@ -216,8 +349,10 @@ export default function App() {
               onShowDetail={showDetail} 
               onToggleFavorite={toggleFavorite}
               userReviews={userReviews}
-              onAddReview={(rev) => setUserReviews(prev => [rev, ...prev])}
-              onDeleteReview={id => setUserReviews(prev => prev.filter(r => r.id !== id))}
+              onAddReview={handleAddReview}
+              onDeleteReview={handleDeleteReview}
+              currentUser={currentUser}
+              onTriggerLogin={() => setLoginModalOpen(true)}
             />
           )}
           {currentPage === 'detail' && selectedFoodId !== null && (
@@ -253,7 +388,208 @@ export default function App() {
           &copy; 2026 台灣美食探索平台. All rights reserved.
         </div>
       </footer>
+
+      {/* Login Modal Overlay */}
+      <AnimatePresence>
+        {loginModalOpen && (
+          <LoginModal 
+            onClose={() => setLoginModalOpen(false)} 
+            onLogin={handleLogin} 
+          />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// ============ REUSABLE MODALS ============
+
+function LoginModal({ onClose, onLogin }: { onClose: () => void; onLogin: (user: User) => void }) {
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState('🍜');
+
+  const avatarOptions = ['🍜', '🧋', '🥟', '🍚', '🍢', '🍧', '🥩', '🍕', '🍰', '🍣'];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (activeTab === 'login') {
+      if (!email || !password) {
+        alert('請填寫所有電子郵件與密碼欄位！');
+        return;
+      }
+      const defaultName = email.split('@')[0];
+      const normalizedName = defaultName.charAt(0).toUpperCase() + defaultName.slice(1);
+      onLogin({
+        username: normalizedName || '老饕會員',
+        email: email,
+        avatarUrl: '🍜',
+        level: '精銳老饕',
+        joinDate: new Date().toLocaleDateString()
+      });
+      alert('登入成功！');
+    } else {
+      if (!username || !email || !password) {
+        alert('請填寫所有欄位以完成註冊！');
+        return;
+      }
+      onLogin({
+        username: username,
+        email: email,
+        avatarUrl: selectedAvatar,
+        level: '新手食客',
+        joinDate: new Date().toLocaleDateString()
+      });
+      alert('註冊成功並已登入！');
+    }
+    onClose();
+  };
+
+  const handleQuickDemoLogin = () => {
+    onLogin({
+      username: '老饕阿杰',
+      email: 'foodie.jay@taiwanfood.com',
+      avatarUrl: '🧋',
+      level: '星級老饕',
+      joinDate: new Date().toLocaleDateString()
+    });
+    alert('已使用『老饕阿杰』測試帳號快速登入！');
+    onClose();
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ scale: 0.95, y: 15 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.95, y: 15 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl border border-stone-100 flex flex-col relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-250 text-stone-500 font-bold flex items-center justify-center transition-colors cursor-pointer text-xs"
+        >
+          ✕
+        </button>
+
+        {/* Header decoration */}
+        <div className="bg-gradient-to-r from-red-500/10 via-amber-500/10 to-[#7ea8c4]/10 p-8 pt-10 text-center">
+          <span className="text-4xl mb-2 inline-block">🇹🇼</span>
+          <h2 className="font-display font-black text-2xl text-stone-800">台灣美食探索</h2>
+          <p className="text-stone-400 text-xs mt-1 font-semibold tracking-wider">老饕會員專區</p>
+        </div>
+
+        {/* Tab Selector */}
+        <div className="flex border-b border-stone-100 p-2 bg-stone-50">
+          <button 
+            type="button"
+            onClick={() => setActiveTab('login')}
+            className={`flex-1 py-3 text-center font-bold text-sm rounded-xl transition-all cursor-pointer ${activeTab === 'login' ? 'bg-white text-red-650 shadow-sm' : 'text-stone-500 hover:text-stone-800'}`}
+          >
+            帳號登入
+          </button>
+          <button 
+            type="button"
+            onClick={() => setActiveTab('register')}
+            className={`flex-1 py-3 text-center font-bold text-sm rounded-xl transition-all cursor-pointer ${activeTab === 'register' ? 'bg-white text-red-650 shadow-sm' : 'text-stone-500 hover:text-stone-800'}`}
+          >
+            新手註冊
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+          {activeTab === 'register' && (
+            <div>
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1.5">老饕暱稱 / 姓名</label>
+              <input 
+                type="text" 
+                required
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="例如：美食家小明" 
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-red-500/20 text-sm font-medium transition-all"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1.5">電子郵件 Email</label>
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com" 
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-red-500/20 text-sm font-medium transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1.5 font-sans">密碼 Password</label>
+            <input 
+              type="password" 
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="輸入密碼..." 
+              className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-red-500/20 text-sm font-medium transition-all"
+            />
+          </div>
+
+          {activeTab === 'register' && (
+            <div>
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">選擇您的美食頭像</label>
+              <div className="flex flex-wrap gap-2 justify-center py-2 px-1 bg-stone-50 rounded-2xl border border-stone-100 max-h-24 overflow-y-auto">
+                {avatarOptions.map(avatar => (
+                  <button 
+                    key={avatar}
+                    type="button"
+                    onClick={() => setSelectedAvatar(avatar)}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-95 cursor-pointer ${selectedAvatar === avatar ? 'bg-red-550 text-white shadow-md scale-110' : 'bg-white hover:bg-stone-100 border border-stone-200/50'}`}
+                  >
+                    {avatar}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="pt-2">
+            <button 
+              type="submit" 
+              className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg active:scale-[0.98] shadow-md cursor-pointer text-sm"
+            >
+              {activeTab === 'login' ? '登入帳戶' : '完成註冊並登入'}
+            </button>
+          </div>
+
+          <div className="relative flex py-2 items-center">
+            <div className="flex-grow border-t border-stone-200/55"></div>
+            <span className="flex-shrink mx-4 text-[10px] text-stone-400 font-bold uppercase tracking-widest">快速體驗區</span>
+            <div className="flex-grow border-t border-stone-200/55"></div>
+          </div>
+
+          <button 
+            type="button"
+            onClick={handleQuickDemoLogin}
+            className="w-full py-3.5 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer text-sm"
+          >
+            <span>✨</span> 測試帳號 · 一鍵快速登入
+          </button>
+        </form>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -636,12 +972,17 @@ function MapView({ onShowDetail, favorites, onToggleFavorite }: any) {
   );
 }
 
-function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) {
+function RecommendView({ onAddRecommendation, recommendations, onDelete, currentUser, onTriggerLogin }: any) {
   const [form, setForm] = useState({ restaurant: "", food: "", region: "", comment: "" });
   const [rating, setRating] = useState(0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) {
+      alert("請登入後再發表推薦，與社群分享美味！");
+      onTriggerLogin();
+      return;
+    }
     if (!form.restaurant || !form.food || !form.region || !rating || !form.comment) {
       alert("請填寫所有欄位並給予評分");
       return;
@@ -651,7 +992,9 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
       id: Date.now().toString(),
       ...form,
       rating,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      authorName: currentUser.username,
+      authorAvatar: currentUser.avatarUrl || '🍜'
     };
 
     onAddRecommendation(newRec);
@@ -691,7 +1034,7 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                   value={form.restaurant}
                   onChange={e => setForm({...form, restaurant: e.target.value})}
                   placeholder="店名..." 
-                  className="w-full px-5 py-3 rounded-xl border-stone-200 bg-stone-50 focus:ring-red-500/20 text-sm font-medium" 
+                  className="w-full px-5 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm font-medium outline-none focus:ring-base focus:ring-red-500/10" 
                 />
               </div>
               <div>
@@ -701,7 +1044,7 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                   value={form.food}
                   onChange={e => setForm({...form, food: e.target.value})}
                   placeholder="必點招牌..." 
-                  className="w-full px-5 py-3 rounded-xl border-stone-200 bg-stone-50 focus:ring-red-500/20 text-sm font-medium" 
+                  className="w-full px-5 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm font-medium outline-none focus:ring-base focus:ring-red-500/10" 
                 />
               </div>
             </div>
@@ -711,7 +1054,7 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                 <select 
                    value={form.region}
                    onChange={e => setForm({...form, region: e.target.value})}
-                   className="w-full px-5 py-3 rounded-xl border-stone-200 bg-stone-50 focus:ring-red-500/20 text-sm font-medium"
+                   className="w-full px-5 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm font-medium outline-none"
                 >
                   <option value="">選擇區域...</option>
                   {REGIONS.filter(r => r !== '全部').map(r => <option key={r} value={r}>{r}</option>)}
@@ -725,7 +1068,7 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                       key={s}
                       type="button"
                       onClick={() => setRating(s)}
-                      className={`text-2xl transition-all hover:scale-125 ${s <= rating ? 'grayscale-0' : 'grayscale opacity-30'}`}
+                      className={`text-2xl transition-all hover:scale-125 cursor-pointer ${s <= rating ? 'grayscale-0' : 'grayscale opacity-30'}`}
                     >
                       ⭐
                     </button>
@@ -739,10 +1082,10 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                 value={form.comment}
                 onChange={e => setForm({...form, comment: e.target.value})}
                 placeholder="分享為什麼這家店值得一去..." 
-                className="w-full px-5 py-3 rounded-xl border-stone-200 bg-stone-50 focus:ring-red-500/20 text-sm font-medium h-32"
+                className="w-full px-5 py-3 rounded-xl border border-stone-200 bg-stone-50 h-32 text-sm font-medium resize-none outline-none focus:ring-base"
               ></textarea>
             </div>
-            <button type="submit" className="w-full py-4 bg-stone-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-stone-800 transition-all active:scale-[0.98] shadow-lg">
+            <button type="submit" className="w-full py-4 bg-stone-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-stone-800 transition-all active:scale-[0.98] shadow-lg cursor-pointer text-sm">
               <Send className="w-4 h-4" /> 提交推薦分享
             </button>
           </form>
@@ -763,9 +1106,9 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                 <div className="flex justify-between items-start mb-4">
                    <div>
                      <h4 className="font-display font-black text-xl text-stone-800">{r.restaurant}</h4>
-                     <p className="text-red-500 font-bold text-sm tracking-tight flex items-center gap-1">🍜 {r.food}</p>
+                     <p className="text-red-500 font-bold text-sm tracking-tight flex items-center gap-1 mt-0.5">🍜 {r.food}</p>
                    </div>
-                   <button onClick={() => onDelete(r.id)} className="p-2 text-stone-300 hover:text-red-500 transition-colors">
+                   <button onClick={() => onDelete(r.id)} className="p-2 text-stone-300 hover:text-red-500 transition-colors cursor-pointer">
                      <Trash2 className="w-4 h-4" />
                    </button>
                 </div>
@@ -776,8 +1119,12 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4 italic">「{r.comment}」</p>
-                <div className="pt-4 border-t border-stone-50 text-[10px] font-bold text-stone-300 uppercase tracking-widest">
-                   {new Date(r.date).toLocaleDateString()}
+                <div className="pt-4 border-t border-stone-50 text-[10px] font-bold text-stone-305 uppercase tracking-widest flex items-center justify-between">
+                   <span>{new Date(r.date).toLocaleDateString()}</span>
+                   <span className="flex items-center gap-1 bg-stone-50/70 px-2 py-1 rounded-lg">
+                     <span className="text-xs shrink-0">{r.authorAvatar || '👤'}</span>
+                     <span className="text-xs text-stone-500 font-bold max-w-[85px] truncate">{r.authorName || '老饕客'}</span>
+                   </span>
                 </div>
              </motion.div>
            ))}
@@ -793,9 +1140,33 @@ function RecommendView({ onAddRecommendation, recommendations, onDelete }: any) 
   );
 }
 
-function AccountView({ favorites, onShowDetail, onToggleFavorite, userReviews, onAddReview, onDeleteReview }: any) {
+function AccountView({ favorites, onShowDetail, onToggleFavorite, userReviews, onAddReview, onDeleteReview, currentUser, onTriggerLogin }: any) {
   const [tab, setTab] = useState<'favorites' | 'reviews'>('favorites');
   const [reviewForm, setReviewForm] = useState({ foodId: "", comment: "", rating: 0 });
+
+  if (!currentUser) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-md mx-auto px-4 py-24 text-center"
+      >
+        <div className="w-24 h-24 bg-red-50/60 rounded-full flex items-center justify-center text-5xl mx-auto mb-6 shadow-sm border border-red-100 shrink-0">
+          🔒
+        </div>
+        <h2 className="font-display font-black text-2xl text-stone-800 mb-2">專屬老饕特權</h2>
+        <p className="text-stone-500 font-medium text-sm leading-relaxed mb-8 max-w-sm mx-auto font-sans">
+          登入後即可建立您個人的台灣美食雷達：收藏喜愛的美食清單、撰寫在地食記、發表個人美食見解與同好分享！
+        </p>
+        <button 
+          onClick={onTriggerLogin}
+          className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold transition-all hover:shadow-lg active:scale-95 shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
+        >
+          <LogIn className="w-5 h-5" /> 立即登入 / 註冊新帳號
+        </button>
+      </motion.div>
+    );
+  }
 
   const favFoods = FOOD_DATA.filter(f => favorites.includes(f.id));
 
@@ -813,7 +1184,9 @@ function AccountView({ favorites, onShowDetail, onToggleFavorite, userReviews, o
       foodName: food.name,
       rating: reviewForm.rating,
       comment: reviewForm.comment,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      userName: currentUser.username,
+      userAvatar: currentUser.avatarUrl || '🍜'
     });
     setReviewForm({ foodId: "", comment: "", rating: 0 });
     alert("評價提交成功！");
@@ -830,9 +1203,15 @@ function AccountView({ favorites, onShowDetail, onToggleFavorite, userReviews, o
         <div className="md:w-1/4">
           <div className="bg-stone-900 rounded-[2.5rem] p-8 text-white text-center mb-8 shadow-2xl relative overflow-hidden">
              <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-white to-transparent"></div>
-             <div className="w-24 h-24 rounded-full bg-stone-800 border-4 border-stone-700 font-black text-3xl flex items-center justify-center mx-auto mb-6 relative z-10">🍜</div>
-             <h2 className="font-display font-black text-xl mb-1 relative z-10">老饕食客</h2>
-             <p className="text-stone-500 text-xs font-bold uppercase tracking-widest relative z-10">精銳會員</p>
+             <div className="w-24 h-24 rounded-full bg-stone-800 border-4 border-stone-700 font-black text-4xl flex items-center justify-center mx-auto mb-6 relative z-10 shadow-lg">
+               {currentUser.avatarUrl || '🍜'}
+             </div>
+             <h2 className="font-display font-black text-xl mb-1 relative z-10 truncate">{currentUser.username}</h2>
+             <p className="text-stone-400 text-xs mb-3 font-medium truncate relative z-10">{currentUser.email}</p>
+             <p className="text-red-400 text-xs font-bold uppercase tracking-widest relative z-10 bg-red-950/40 inline-block px-3.5 py-1 rounded-full border border-red-900/30">
+               {currentUser.level || '精銳老饕'}
+             </p>
+             <div className="text-[10px] text-stone-500 mt-5 relative z-10 font-bold uppercase tracking-wider">加入時間: {currentUser.joinDate}</div>
           </div>
           
           <div className="flex flex-col gap-2 p-2 bg-white rounded-3xl shadow-sm border border-stone-100">
